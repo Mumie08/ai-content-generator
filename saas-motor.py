@@ -4,10 +4,24 @@ import pandas as pd
 import streamlit as strl
 import io
 
-MEIN_API_KEY = os.environ.get("OPENAI_API_KEY")
+strl.sidebar.title("⚙️ Einstellungen")
+
+user_key = strl.sidebar.text_input(
+    "Dein OpenAI API Key (optional)", 
+    type="password",
+    help="Wenn du keinen Key hast, nutzt die App die Demo-Version."
+)
+
+if user_key:
+    MEIN_API_KEY = user_key
+    strl.sidebar.success("Eigener API-Key aktiv! 🔑")
+else:
+    MEIN_API_KEY = os.environ.get("OPENAI_API_KEY")
+    if MEIN_API_KEY:
+        strl.sidebar.info("Demo-Modus aktiv 💡")
 
 if not MEIN_API_KEY:
-    strl.error("❌ API Key missing! Please set the OPENAI_API_KEY environment variable.")
+    strl.error("❌ API Key missing! Please set the OPENAI_API_KEY environment variable or enter your own.")
     strl.stop()
 
 client = openai.OpenAI(api_key=MEIN_API_KEY)
