@@ -82,7 +82,7 @@ with col_output:
         else:
             with strl.spinner("AI is crafting your custom content... Please wait..."):
                 
-                # Dynamic prompt engineering based on user selection
+                # 1. Base Prompt Engineering based on platform
                 if platform == "LinkedIn":
                     prompt = f"Write a {tone.lower()} LinkedIn post about the topic. Use clean line breaks, a highly engaging hook at the beginning, and end with 3 relevant business hashtags."
                 elif platform == "Twitter/X":
@@ -92,7 +92,14 @@ with col_output:
                 elif platform == "YouTube Shorts":
                     prompt = f"Write a short, fast-paced, high-retention {tone.lower()} video script for YouTube Shorts about the topic. Include visual cues in brackets like [Show text on screen] and a hook within the first 3 seconds."
 
-                # Call OpenAI with the single dynamic prompt
+                # 2. BUDGET PROTECTION LOGIC (Check if custom key or demo key is used)
+                demo_limit_active = False
+                if not user_key:  # If the input field in the sidebar is empty
+                    demo_limit_active = True
+                    # We inject a restriction into the prompt to save your money!
+                    prompt += " IMPORTANT: Since this is a short demo, you MUST limit your response to a maximum of 40 words and keep it very brief."
+
+                # Call OpenAI with the prompt
                 ai_response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -103,10 +110,13 @@ with col_output:
                 
                 content_text = ai_response.choices[0].message.content
                 
-                # Zeigt das Ergebnis schön formatiert in einer Box an
+                # 3. Display Results & Warnings
                 strl.markdown(f"**Target:** `{platform}` | **Tone:** `{tone}`")
-                strl.info(content_text)
                 
+                if demo_limit_active:
+                    strl.warning("⚠️ **Demo Mode Limit Active:** The response was shortened to save API budget. To unlock unlimited length, please enter your own OpenAI API Key in the sidebar!")
+                
+                strl.info(content_text)
                 # Create Excel structure
                 daten = {
                     "Platform": [platform],
