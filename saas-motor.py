@@ -1,4 +1,4 @@
-Python
+
 import streamlit as strl
 import openai
 import os
