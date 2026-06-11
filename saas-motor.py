@@ -46,60 +46,89 @@ tone = strl.sidebar.selectbox(
     ["Professional", "Casual & Funny", "Aggressive & Viral", "Motivational"]
 )
 
+# Haupt-Branding & Titel
 strl.title("🚀 AI Multi-Channel Content Generator")
-strl.write("Generate high-converting content for your specific brand channels with a single click!")
+strl.markdown("### *Scale your social media presence with data-driven AI solutions.*")
+strl.write("---")
 
-thema = strl.text_input("What topic do you want to go viral with today?", placeholder="e.g., Why sleep is the ultimate business cheat code")
+# Eine Willkommens- und Info-Box für ein Premium-Gefühl
+strl.info(
+    "💡 **How it works:** Enter your topic below, choose your target platform and tone of voice in the sidebar, "
+    "and let the AI generate high-converting content instantly. You can export your final plan directly to Excel!"
+)
 
-if strl.button("Generate Content Plan 📅"):
-    if not thema.strip():
-        strl.error("Please enter a topic first!")
+# Wir erstellen zwei Spalten: Spalte 1 für den Input, Spalte 2 für den Output
+col_input, col_output = strl.columns([1, 1.2], gap="large")
+
+# --- LINKE SPALTE: EINGABE ---
+with col_input:
+    strl.subheader("📝 Content Strategy")
+    thema = strl.text_input(
+        "What topic do you want to go viral with today?", 
+        placeholder="e.g., Why sleep is the ultimate business cheat code",
+        help="Type in a core idea, a title, or a question."
+    )
+    
+    # Der Button wird in der linken Spalte platziert
+    generate_btn = strl.button("Generate Content Plan 📅", use_container_width=True)
+
+# --- RECHTE SPALTE: ERGEBNIS & EXPORT ---
+with col_output:
+    strl.subheader("✨ Generated Masterpiece")
+    
+    if generate_btn:
+        if not thema.strip():
+            strl.error("Please enter a topic first!")
+        else:
+            with strl.spinner("AI is crafting your custom content... Please wait..."):
+                
+                # Dynamic prompt engineering based on user selection
+                if platform == "LinkedIn":
+                    prompt = f"Write a {tone.lower()} LinkedIn post about the topic. Use clean line breaks, a highly engaging hook at the beginning, and end with 3 relevant business hashtags."
+                elif platform == "Twitter/X":
+                    prompt = f"Write a {tone.lower()} tweet about the topic. Maximum 250 characters. Be direct, punchy, and do not use hashtags."
+                elif platform == "Instagram":
+                    prompt = f"Write a {tone.lower()} Instagram caption about the topic. Use plenty of relevant emojis and a strong call-to-action at the end."
+                elif platform == "YouTube Shorts":
+                    prompt = f"Write a short, fast-paced, high-retention {tone.lower()} video script for YouTube Shorts about the topic. Include visual cues in brackets like [Show text on screen] and a hook within the first 3 seconds."
+
+                # Call OpenAI with the single dynamic prompt
+                ai_response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": thema}
+                    ]
+                )
+                
+                content_text = ai_response.choices[0].message.content
+                
+                # Zeigt das Ergebnis schön formatiert in einer Box an
+                strl.markdown(f"**Target:** `{platform}` | **Tone:** `{tone}`")
+                strl.info(content_text)
+                
+                # Create Excel structure
+                daten = {
+                    "Platform": [platform],
+                    "Tone": [tone],
+                    "Content-Text": [content_text],
+                    "Status": ["Ready to Post"]
+                }
+                
+                df = pd.DataFrame(daten)
+                
+                buffer = io.BytesIO()
+                with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                    df.to_excel(writer, index=False, sheet_name='Content Plan')
+                
+                # Download Button direkt unter dem Text in der rechten Spalte
+                strl.download_button(
+                    label="📥 Download Content Plan (Excel)",
+                    data=buffer.getvalue(),
+                    file_name="ai_content_plan.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
     else:
-        with strl.spinner("AI is crafting your custom content... Please wait..."):
-            
-            # Dynamic prompt engineering based on user selection
-            if platform == "LinkedIn":
-                prompt = f"Write a {tone.lower()} LinkedIn post about the topic. Use clean line breaks, a highly engaging hook at the beginning, and end with 3 relevant business hashtags."
-            elif platform == "Twitter/X":
-                prompt = f"Write a {tone.lower()} tweet about the topic. Maximum 250 characters. Be direct, punchy, and do not use hashtags."
-            elif platform == "Instagram":
-                prompt = f"Write a {tone.lower()} Instagram caption about the topic. Use plenty of relevant emojis and a strong call-to-action at the end."
-            elif platform == "YouTube Shorts":
-                prompt = f"Write a short, fast-paced, high-retention {tone.lower()} video script for YouTube Shorts about the topic. Include visual cues in brackets like [Show text on screen] and a hook within the first 3 seconds."
-
-            # Call OpenAI with the single dynamic prompt
-            ai_response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": thema}
-                ]
-            )
-            
-            content_text = ai_response.choices[0].message.content
-            
-            # Display the result to the user
-            strl.subheader(f"Your Generated Content ({platform} - {tone})")
-            strl.write(content_text)
-            
-            # Create Excel structure
-            daten = {
-                "Platform": [platform],
-                "Tone": [tone],
-                "Content-Text": [content_text],
-                "Status": ["Ready to Post"]
-            }
-            
-            df = pd.DataFrame(daten)
-            
-            buffer = io.BytesIO()
-            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False, sheet_name='Content Plan')
-            
-            # Download Button
-            strl.download_button(
-                label="📥 Download Content Plan (Excel)",
-                data=buffer.getvalue(),
-                file_name="ai_content_plan.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        # Platzhalter-Nachricht, wenn noch kein Text generiert wurde
+        strl.write("Your generated content and the Excel export link will appear here once you hit the generate button.")
