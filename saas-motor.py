@@ -20,11 +20,11 @@ if user_key:
     MEIN_API_KEY = user_key
     strl.sidebar.success("Custom API Key active! 🔑")
 else:
-    # Falls das Feld leer ist, holt er deinen Key DIREKT aus den Streamlit Secrets
+    # Holt deinen Key direkt aus den sicheren Streamlit-Secrets
     try:
         MEIN_API_KEY = strl.secrets["OPENAI_API_KEY"]
         strl.sidebar.info("Demo Mode active 💡")
-    except:
+    except Exception:
         MEIN_API_KEY = None
 # 4. Error handling if no key is available at all
 if not MEIN_API_KEY:
