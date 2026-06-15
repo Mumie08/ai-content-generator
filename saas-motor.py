@@ -73,6 +73,25 @@ with col_input:
     generate_btn = strl.button("Generate Content Plan 📅", use_container_width=True)
 
 # --- RECHTE SPALTE: ERGEBNIS & EXPORT ---
+with col_input:
+    strl.subheader("📝 Content Strategy")
+    thema = strl.text_input(
+        "What topic do you want to go viral with today?", 
+        placeholder="e.g., Why sleep is the ultimate business cheat code",
+        help="Type in a core idea, a title, or a question."
+    )
+    
+    # DAS NEUE FELD FÜR DIE ZIELGRUPPE:
+    audience = strl.text_input(
+        "Who is your Target Audience? 🎯",
+        placeholder="e.g., Young entrepreneurs, Gym beginners, Students",
+        help="Who is this content specifically for? Leaving it blank defaults to a general audience."
+    )
+    
+    # Der Button bleibt wie gewohnt hier
+    generate_btn = strl.button("Generate Content Plan 📅", use_container_width=True)
+
+# --- RECHTE SPALTE: ERGEBNIS & EXPORT ---
 with col_output:
     strl.subheader("✨ Generated Masterpiece")
     
@@ -82,15 +101,18 @@ with col_output:
         else:
             with strl.spinner("AI is crafting your custom content... Please wait..."):
                 
-                # 1. Base Prompt Engineering based on platform
+                # Zielgruppen-Text definieren, falls das Feld ausgefüllt wurde
+                audience_info = f"The target audience is: {audience}." if audience.strip() else "The target audience is a general audience."
+                
+                # 1. Base Prompt Engineering based on platform (Jetzt mit eingebauter Zielgruppe!)
                 if platform == "LinkedIn":
-                    prompt = f"Write a {tone.lower()} LinkedIn post about the topic. Use clean line breaks, a highly engaging hook at the beginning, and end with 3 relevant business hashtags."
+                    prompt = f"Write a {tone.lower()} LinkedIn post about the topic. {audience_info} Use clean line breaks, a highly engaging hook at the beginning, and end with 3 relevant business hashtags."
                 elif platform == "Twitter/X":
-                    prompt = f"Write a {tone.lower()} tweet about the topic. Maximum 250 characters. Be direct, punchy, and do not use hashtags."
+                    prompt = f"Write a {tone.lower()} tweet about the topic. {audience_info} Maximum 250 characters. Be direct, punchy, and do not use hashtags."
                 elif platform == "Instagram":
-                    prompt = f"Write a {tone.lower()} Instagram caption about the topic. Use plenty of relevant emojis and a strong call-to-action at the end."
+                    prompt = f"Write a {tone.lower()} Instagram caption about the topic. {audience_info} Use plenty of relevant emojis and a strong call-to-action at the end."
                 elif platform == "YouTube Shorts":
-                    prompt = f"Write a short, fast-paced, high-retention {tone.lower()} video script for YouTube Shorts about the topic. Include visual cues in brackets like [Show text on screen] and a hook within the first 3 seconds."
+                    prompt = f"Write a short, fast-paced, high-retention {tone.lower()} video script for YouTube Shorts about the topic. {audience_info} Include visual cues in brackets like [Show text on screen] and a hook within the first 3 seconds."
 
                 # 2. BUDGET PROTECTION LOGIC (Check if custom key or demo key is used)
                 demo_limit_active = False
