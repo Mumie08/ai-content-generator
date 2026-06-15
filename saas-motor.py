@@ -68,9 +68,6 @@ with col_input:
         placeholder="e.g., Why sleep is the ultimate business cheat code",
         help="Type in a core idea, a title, or a question."
     )
-    
-    # Der Button wird in der linken Spalte platziert
-    generate_btn = strl.button("Generate Content Plan 📅", use_container_width=True)
 
 # --- RECHTE SPALTE: ERGEBNIS & EXPORT ---
 
