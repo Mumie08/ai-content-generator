@@ -73,14 +73,7 @@ with col_input:
     generate_btn = strl.button("Generate Content Plan 📅", use_container_width=True)
 
 # --- RECHTE SPALTE: ERGEBNIS & EXPORT ---
-with col_input:
-    strl.subheader("📝 Content Strategy")
-    thema = strl.text_input(
-        "What topic do you want to go viral with today?", 
-        placeholder="e.g., Why sleep is the ultimate business cheat code",
-        help="Type in a core idea, a title, or a question."
-    )
-    
+
     # DAS NEUE FELD FÜR DIE ZIELGRUPPE:
     audience = strl.text_input(
         "Who is your Target Audience? 🎯",
